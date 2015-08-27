@@ -1,4 +1,14 @@
-#!/bin/bash 
+#!/bin/bash
+
+ansiblecheck() {
+
+        test=`nc -w1 -z $ansibleip $ansiblesshport ; echo $?`
+        if [ "$test" -ne "0" ];
+        then
+		echo "Ansible isn't reachable using ssh. Exiting."
+		exit 1
+	fi
+}
 
 createcloudconfig() {
 
@@ -94,6 +104,7 @@ else
 	exit 1
 fi
 
+ansiblecheck
 createcloudconfig
 defineandstart
 ansiblecreate
