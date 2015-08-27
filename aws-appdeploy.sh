@@ -37,7 +37,6 @@ gitrepocheck() {
                                 gitrepocheck
                         ;;
                 esac
-                exit 0
         fi
 }
 
