@@ -10,6 +10,37 @@ ansiblecheck() {
 	fi
 }
 
+gitrepocheck() {
+
+        httpcode=`curl -I https://github.com/jpazdyga/jblog 2>1| grep 404 | grep HTTP | cut -d' ' -f2`
+        if [ "$httpcode" -eq "404" ];
+        then
+                echo -e " \nGithub repository url you have specified is probably private.\n\n"
+                read -p "Do you want to proceed using your [c]redentials, [t]oken or [q]uit? [c/t/q] " resp1
+                case $resp1 in
+                        c)
+                                read -p "Enter your github usename: " username
+                                read -sp "Enter your github password: " password
+                                echo -e "\n"
+                                giturl=`echo $giturl | sed "s/:\/\//:\/\/$username:$password@/g"`
+                        ;;
+                        t)
+                                read -p "Enter your application token: " token
+                                giturl=`echo $giturl | sed "s/:\/\//:\/\/$token@/g"`
+                        ;;
+                        q)
+                                echo "Fine, exiting now."
+                                exit 0
+                        ;;
+                        *)
+                                echo -e "Wrong answer given. Try again."
+                                gitrepocheck
+                        ;;
+                esac
+                exit 0
+        fi
+}
+
 createcloudconfig() {
 
         id_rsa=`ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$ansiblesshport ansible@$ansibleip "cat /etc/ansible/.ssh/id_rsa.pub | cut -d' ' -f1,2"`
@@ -105,6 +136,7 @@ else
 fi
 
 ansiblecheck
+gitrepocheck
 createcloudconfig
 defineandstart
 ansiblecreate
