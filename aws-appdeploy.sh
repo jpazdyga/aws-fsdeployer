@@ -75,14 +75,14 @@ defineandstart() {
 	instanceid=`./ebs-start-instance.py | cut -d':' -f2 | sed 's/]//g'`
 	sleep 5
 	privip=`./get_instance_ip.py private $instanceid`
-	echo "Priv IP: " $privip
+	pubip=`./get_instance_ip.py public $instanceid`
 
 }
 
 ansiblecreate() {
 
         ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p$ansiblesshport ansible@$ansibleip "sudo /usr/local/bin/add_new_coreos_host.sh $privip ; ansible-playbook coreos-bootstrap.yml ; ansible-playbook coreos-fsdeploy.yml --extra-vars 'giturl=$giturl domain=$domainname'"
-
+	echo -e "\nYour code has been deployed. Public IP adress of the project is $pubip.\n"
 }
 
 vmremove() {
